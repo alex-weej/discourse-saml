@@ -20,7 +20,7 @@ class SamlAuthenticator < ::Auth::OAuth2Authenticator
                       :idp_sso_target_url => GlobalSetting.saml_target_url,
                       :idp_cert_fingerprint => GlobalSetting.try(:saml_cert_fingerprint),
                       :idp_cert => GlobalSetting.try(:saml_cert),
-                      :attribute_statements => { :nickname => ['screenName'] },
+                      :attribute_statements => { :nickname => ['username'], :email => ['emailAddress'] },
                       :assertion_consumer_service_url => Discourse.base_url + "/auth/saml/callback",
                       :custom_url => (GlobalSetting.try(:saml_request_method) == 'post') ? "/discourse_saml" : nil
   end
@@ -38,7 +38,7 @@ class SamlAuthenticator < ::Auth::OAuth2Authenticator
     result.name = auth[:info].name || uid
     result.username = uid
     if auth.extra.present? && auth.extra[:raw_info].present?
-      result.username = auth.extra[:raw_info].attributes['screenName'].try(:first) || uid
+      result.username = auth.extra[:raw_info].attributes['username'].try(:first) || uid
     end
 
     if GlobalSetting.try(:saml_use_uid) && auth.extra.present? && auth.extra[:raw_info].present?
